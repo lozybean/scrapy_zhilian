@@ -74,7 +74,12 @@ class ZhilianSpider(scrapy.spiders.Spider):
                     item[desc] = text
                     break
         text = ''
-        for childnode in response.xpath(prefix+"div[@class='terminalpage-main clearfix']/div[@class='tab-cont-box']/div[@class='tab-inner-cont']"):
-            text += self.encode(childnode.xpath('node()/text()').extract())
+        xpath = prefix
+        xpath += "div[@class='terminalpage-main clearfix']/div[@class='tab-cont-box']/div[@class='tab-inner-cont']"
+        xpath += "/(//p|//br/following-sibling::node())/descendant-or-self::text()"
+        #  xpath += "/descendant-or-self::node()/child::p/following-sibling::node()/descendant-or-self::text()"
+        text = self.encode( response.xpath(xpath).extract() )
+#          for childnode in response.xpath(prefix+"div[@class='terminalpage-main clearfix']/div[@class='tab-cont-box']/div[@class='tab-inner-cont']/p"):
+            #  text += self.encode(childnode.xpath('node()/text()').extract())
         item['description'] = text
         return item
