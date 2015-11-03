@@ -67,19 +67,18 @@ class ZhilianSpider(scrapy.spiders.Spider):
             for desc in description:
                 if description[desc].search(text.decode('utf-8')):
                     text = ''
-                    for childnode in li.xpath('strong'):
-                        t = self.encode( childnode.xpath('node()/text()').extract() )
+                    for childnode in li.xpath('strong/descendant-or-self::node()'):
+                        t = self.encode( childnode.xpath('text()').extract() )
                         text += t
-                    text += self.encode(li.xpath('strong/text()').extract())
                     item[desc] = text
                     break
         text = ''
         xpath = prefix
         xpath += "div[@class='terminalpage-main clearfix']/div[@class='tab-cont-box']/div[@class='tab-inner-cont']"
-        xpath += "/(//p|//br/following-sibling::node())/descendant-or-self::text()"
-        #  xpath += "/descendant-or-self::node()/child::p/following-sibling::node()/descendant-or-self::text()"
-        text = self.encode( response.xpath(xpath).extract() )
-#          for childnode in response.xpath(prefix+"div[@class='terminalpage-main clearfix']/div[@class='tab-cont-box']/div[@class='tab-inner-cont']/p"):
-            #  text += self.encode(childnode.xpath('node()/text()').extract())
+        xpath += "/p/descendant-or-self::node()"
+        for t in response.xpath(xpath):
+            t = self.encode(t.xpath("text()").extract())
+            if len(t.strip()) > 9:
+                text += t + '\n  '.encode('utf-8')
         item['description'] = text
         return item
